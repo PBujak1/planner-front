@@ -1,5 +1,5 @@
 import React from "react";
-import "./styles/AuthLayout.css";
+import "../../components/styles/login/AuthLayout.css";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
     return (

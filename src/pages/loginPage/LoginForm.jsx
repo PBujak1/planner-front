@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
 
-import api from "../api/axios";
-import { useAuth } from "../context/AuthContext";
+import api from "../../api/axios.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
-import AuthLayout from "../components/AuthLayout";
-import "./styles/LoginForm.css";
+import AuthLayout from "./AuthLayout.jsx";
+import "../../components/styles/login/LoginForm.css";
 
 export default function LoginForm() {
     const [username, setUsername] = useState("");

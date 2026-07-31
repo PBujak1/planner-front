@@ -1,0 +1,41 @@
+.building-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid #e5e7eb;
+}
+
+.building-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+
+.building-icon {
+    width: 35px;
+    height: 35px;
+    color: #2563eb;
+    margin-bottom: 20px;
+}
+
+
+.building-card h2 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+
+.building-description {
+    color: #6b7280;
+}
+
+
+.building-info {
+    display:flex;
+    justify-content:space-between;
+    margin-top:25px;
+    color:#6b7280;
+    font-size:14px;
+}

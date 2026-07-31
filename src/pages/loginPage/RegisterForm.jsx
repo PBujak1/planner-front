@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { UserPlus } from "lucide-react";
-import AuthLayout from "./AuthLayout";
+import AuthLayout from "./AuthLayout.jsx";
 import { Link } from "react-router-dom";
-import "./styles/RegisterForm.css"
-import api from "../api/axios";
-import { useAuth } from "../context/AuthContext";
+import "../../components/styles/login/RegisterForm.css"
+import api from "../../api/axios.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function RegisterForm() {
 

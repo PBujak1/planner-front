@@ -1,0 +1,22 @@
+.add-button {
+
+    background:#2563eb;
+    color:white;
+
+    border:none;
+    border-radius:12px;
+
+    padding:12px 22px;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+}
+
+
+.add-button:hover {
+
+    background:#1d4ed8;
+
+}
