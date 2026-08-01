@@ -1,11 +1,13 @@
-import "./styles/buildings//NewBuildingDialog.css";
+import "./styles/buildings/NewBuildingDialog.css";
 
 
 export default function NewBuildingDialog(){
 
     return(
         <button className="add-button">
-            + Add Building
+            <span>
+                + Add Building
+            </span>
         </button>
     );
 
