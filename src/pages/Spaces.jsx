@@ -23,6 +23,13 @@ export default function Spaces() {
     const [loadingBuildings, setLoadingBuildings] = useState(true);
     const [loadingRooms, setLoadingRooms] = useState(false);
 
+    const handleRoomCreated = (newRoom) => {
+        setRooms(prevRooms => [
+            ...prevRooms,
+            newRoom
+        ]);
+    };
+
     /*
      * Pobieranie budynków
      */
@@ -80,7 +87,11 @@ export default function Spaces() {
                         </p>
                     </div>
                     <div className="spaces-actions">
-                        <NewBuildingDialog/>
+                        <NewBuildingDialog
+                            onBuildingCreated={(newBuilding) => {
+                                setBuildings((prev) => [...prev, newBuilding]);
+                            }}
+                        />
 
                         <button
                             className="logout-button"
@@ -144,7 +155,10 @@ export default function Spaces() {
                         {selectedBuilding.description}
                     </p>
                 </div>
-                <NewRoomDialog buildings={buildings} />
+                <NewRoomDialog
+                    buildingId={selectedBuilding.id}
+                    onRoomCreated={handleRoomCreated}
+                />
             </div>
             {loadingRooms ? (
                 <p>Loading rooms...</p>

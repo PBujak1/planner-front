@@ -1,15 +1,11 @@
 import { useState } from "react";
 import "./styles/buildings/NewRoomDialog.css";
+import api from "../api/axios"
 
-export default function NewRoomDialog({
-                                          buildings = [],
-                                          onRoomCreated
-                                      }) {
-
+export default function NewRoomDialog({buildingId, onRoomCreated}) {
     const [open, setOpen] = useState(false);
 
     const [roomNumber, setRoomNumber] = useState("");
-    const [buildingId, setBuildingId] = useState("");
     const [floor, setFloor] = useState("");
     const [capacity, setCapacity] = useState("");
     const [description, setDescription] = useState("");
@@ -23,9 +19,7 @@ export default function NewRoomDialog({
      * Generowanie miejsc tylko do podglądu.
      */
     function generateSeats(count) {
-
         const seats = [];
-
         const number = Number(count);
 
         if (!number || number <= 0) {
@@ -38,14 +32,11 @@ export default function NewRoomDialog({
          * nie rozwaliła formularza.
          */
         const previewCount = Math.min(number, 40);
-
         for (let i = 0; i < previewCount; i++) {
-
             seats.push({
                 id: i + 1
             });
         }
-
         return seats;
     }
 
@@ -54,12 +45,10 @@ export default function NewRoomDialog({
      */
     const seats = generateSeats(capacity);
 
-
     /*
      * Utworzenie sali
      */
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
         if (!buildingId) {
@@ -77,68 +66,47 @@ export default function NewRoomDialog({
             return;
         }
 
-        const room = {
-            roomNumber: roomNumber.trim(),
-
-            building: {
-                id: Number(buildingId)
-            },
-
-            floor: Number(floor),
-
-            capacity: Number(capacity),
-
-            description: description.trim(),
-
-            roomType: roomType,
-
-            /*
-             * Na razie layoutType jest informacją
-             * dla frontu. Backend trzeba później
-             * rozszerzyć o tę właściwość.
-             */
-            layoutType: layoutType,
-
-            active: true
-        };
-
-        console.log("Creating room:", room);
-
         try {
-
             setLoading(true);
 
-            /*
-             * Na razie tylko przygotowujemy obiekt.
-             *
-             * Kiedy podepniemy endpoint:
-             *
-             * const response = await api.post("/rooms", room);
-             *
-             * onRoomCreated?.(response.data);
-             */
+            const room = {
+                roomNumber: roomNumber.trim(),
+                building: {
+                    id: Number(buildingId)
+                },
+                floor: Number(floor),
+                capacity: Number(capacity),
+                description: description.trim(),
+                roomType: roomType,
+                layoutType: layoutType,
+                active: true
+            };
 
-            await new Promise(resolve =>
-                setTimeout(resolve, 500)
-            );
+            console.log("Sending room:", room);
+
+            const response = await api.post("/rooms", room);
+
+            console.log("Room created:", response.data);
 
             if (onRoomCreated) {
-                onRoomCreated(room);
+                onRoomCreated(response.data);
             }
+
+            alert("Room created successfully!");
 
             resetForm();
 
         } catch (error) {
+            console.error("Error while creating room:", error);
 
-            console.error(
-                "Error while creating room:",
-                error
-            );
+            if (error.response) {
+                console.error("Backend response:", error.response.data);
+                console.error("Status:", error.response.status);
+            }
 
             alert("Could not create room.");
 
         } finally {
-
             setLoading(false);
         }
     };
@@ -150,7 +118,6 @@ export default function NewRoomDialog({
     const resetForm = () => {
 
         setRoomNumber("");
-        setBuildingId("");
         setFloor("");
         setCapacity("");
         setDescription("");
@@ -181,22 +148,16 @@ export default function NewRoomDialog({
          * SEMICIRCLE
          */
         if (layoutType === "SEMICIRCLE") {
-
             return (
                 <div className="semicircle-seat-layout">
-
                     {seats.map((seat, index) => {
-
                         const angle =
                             Math.PI *
                             (index / Math.max(seats.length - 1, 1));
-
                         const x =
                             50 + Math.cos(angle) * 40;
-
                         const y =
                             75 - Math.sin(angle) * 45;
-
                         return (
                             <div
                                 key={seat.id}
@@ -210,7 +171,6 @@ export default function NewRoomDialog({
                             </div>
                         );
                     })}
-
                 </div>
             );
         }
@@ -223,15 +183,11 @@ export default function NewRoomDialog({
 
         return (
             <div className="rows-seat-layout">
-
                 {seats.map((seat, index) => {
-
                     const row =
                         Math.floor(index / columns);
-
                     const column =
                         index % columns;
-
                     return (
                         <div
                             key={seat.id}
@@ -245,7 +201,6 @@ export default function NewRoomDialog({
                         </div>
                     );
                 })}
-
             </div>
         );
     };
@@ -253,9 +208,7 @@ export default function NewRoomDialog({
 
     return (
         <>
-
             {/* ADD ROOM BUTTON */}
-
             <button
                 className="add-room-button"
                 onClick={() => setOpen(true)}
@@ -265,19 +218,12 @@ export default function NewRoomDialog({
 
 
             {/* DIALOG */}
-
             {open && (
-
                 <div className="room-dialog-overlay">
-
                     <div className="room-dialog">
-
                         {/* HEADER */}
-
                         <div className="room-dialog-header">
-
                             <div>
-
                                 <span>
                                     ROOM MANAGEMENT
                                 </span>
@@ -298,17 +244,11 @@ export default function NewRoomDialog({
 
                         </div>
 
-
                         {/* FORM */}
-
                         <form onSubmit={handleSubmit}>
-
                             {/* ROOM NUMBER */}
-
                             <label>
-
                                 Room number
-
                                 <input
                                     type="text"
                                     value={roomNumber}
@@ -318,52 +258,12 @@ export default function NewRoomDialog({
                                     placeholder="A101"
                                     required
                                 />
-
                             </label>
-
-
-                            {/* BUILDING */}
-
-                            <label>
-
-                                Building
-
-                                <select
-                                    value={buildingId}
-                                    onChange={(e) =>
-                                        setBuildingId(e.target.value)
-                                    }
-                                    required
-                                >
-
-                                    <option value="">
-                                        Select building
-                                    </option>
-
-                                    {buildings.map((building) => (
-
-                                        <option
-                                            key={building.id}
-                                            value={building.id}
-                                        >
-                                            {building.name}
-                                        </option>
-
-                                    ))}
-
-                                </select>
-
-                            </label>
-
 
                             {/* FLOOR + CAPACITY */}
-
                             <div className="room-form-row">
-
                                 <label>
-
                                     Floor
-
                                     <input
                                         type="number"
                                         value={floor}
@@ -373,14 +273,9 @@ export default function NewRoomDialog({
                                         min="0"
                                         required
                                     />
-
                                 </label>
-
-
                                 <label>
-
                                     Capacity
-
                                     <input
                                         type="number"
                                         value={capacity}
@@ -391,52 +286,35 @@ export default function NewRoomDialog({
                                         max="200"
                                         required
                                     />
-
                                 </label>
-
                             </div>
 
 
                             {/* ROOM TYPE */}
-
                             <label>
-
                                 Room type
-
                                 <select
                                     value={roomType}
                                     onChange={(e) =>
                                         setRoomType(e.target.value)
                                     }
                                 >
-
                                     <option value="CLASSROOM">
                                         Classroom
                                     </option>
-
                                     <option value="LECTURE_HALL">
                                         Lecture hall
                                     </option>
-
                                     <option value="MEETING_ROOM">
                                         Meeting room
                                     </option>
-
                                 </select>
-
                             </label>
-
-
                             {/* ROOM LAYOUT */}
-
                             <label>
-
                                 Room layout
-
                                 <div className="layout-options">
-
                                     {/* ROWS */}
-
                                     <button
                                         type="button"
                                         className={
@@ -448,29 +326,21 @@ export default function NewRoomDialog({
                                             setLayoutType("ROWS")
                                         }
                                     >
-
                                         <div className="layout-preview rows">
-
                                             <i></i>
                                             <i></i>
                                             <i></i>
                                             <i></i>
-
                                         </div>
-
                                         <strong>
                                             Rows
                                         </strong>
-
                                         <span>
                                             Standard classroom
                                         </span>
-
                                     </button>
 
-
                                     {/* SEMICIRCLE */}
-
                                     <button
                                         type="button"
                                         className={
@@ -482,29 +352,21 @@ export default function NewRoomDialog({
                                             setLayoutType("SEMICIRCLE")
                                         }
                                     >
-
                                         <div className="layout-preview semicircle">
-
                                             <i></i>
                                             <i></i>
                                             <i></i>
                                             <i></i>
-
                                         </div>
-
                                         <strong>
                                             Semicircle
                                         </strong>
-
                                         <span>
                                             Lecture hall
                                         </span>
-
                                     </button>
 
-
                                     {/* CLASSROOM */}
-
                                     <button
                                         type="button"
                                         className={
@@ -516,54 +378,33 @@ export default function NewRoomDialog({
                                             setLayoutType("CLASSROOM")
                                         }
                                     >
-
                                         <div className="layout-preview classroom">
-
                                             <i></i>
                                             <i></i>
                                             <i></i>
                                             <i></i>
-
                                         </div>
-
                                         <strong>
                                             Classroom
                                         </strong>
-
                                         <span>
                                             Desk arrangement
                                         </span>
-
                                     </button>
-
                                 </div>
-
                             </label>
-
-
                             {/* SEAT PREVIEW */}
-
                             <div className="room-preview">
-
                                 <div className="front-of-room">
                                     FRONT OF ROOM
                                 </div>
-
                                 <div className="seat-preview">
-
                                     {renderSeats()}
-
                                 </div>
-
                             </div>
-
-
                             {/* DESCRIPTION */}
-
                             <label>
-
                                 Description
-
                                 <textarea
                                     value={description}
                                     onChange={(e) =>
@@ -571,33 +412,22 @@ export default function NewRoomDialog({
                                     }
                                     placeholder="Describe this room..."
                                 />
-
                             </label>
-
-
                             {/* CREATE */}
-
                             <button
                                 type="submit"
                                 className="create-room-button"
                                 disabled={loading}
                             >
-
                                 {loading
                                     ? "Creating..."
                                     : "Create Room"
                                 }
-
                             </button>
-
                         </form>
-
                     </div>
-
                 </div>
-
             )}
-
         </>
     );
 }
