@@ -25,51 +25,112 @@
     gap:25px;
 }
 
-
 .back-button {
-    position: relative;
-    width: 190px;
-    height: 56px;
-    border: none;
-    border-radius: 16px;
-    background: black;
-    color: white;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 9px;
+
+    height: 48px;
+    padding: 0 42px;
+
+    border: 2px solid #d1d5db;
+    border-radius: 14px;
+
+    background: #ffffff;
+    color: #374151;
+
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.back-button:hover {
+    background: #374151;
+    border-color: #374151;
+    color: white;
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 25px rgba(55, 65, 81, 0.25);
+}
+
+.back-button:active {
+    transform: translateY(0);
 }
 
 .back-button-icon {
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 25%;
-    height: 48px;
-    background: #4ade80;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: width 0.5s ease;
-    z-index: 2;
-}
-.back-button:hover .back-button-icon {
-    width: calc(100% - 8px);
-}
-.back-button-text {
-    position: relative;
-    z-index: 3;
-    transform: translateX(8px);
 }
 
-.back-button-text {
-    transition: opacity 0.3s ease;
+.back-button-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
-.back-button:hover .back-button-text {
-    opacity: 0;
+.back-button-icon svg path {
+    fill: currentColor;
+}
+
+.logout-button {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    height: 48px;
+    padding: 0 32px;
+
+    border: 2px solid #fca5a5;
+    border-radius: 14px;
+
+    background: #ffffff;
+    color: #dc2626;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+
+    z-index: 1000;
+}
+
+.logout-button:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.25);
+}
+
+.logout-button:active {
+    transform: translateY(0);
 }

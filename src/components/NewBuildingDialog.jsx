@@ -5,9 +5,7 @@ export default function NewBuildingDialog(){
 
     return(
         <button className="add-button">
-            <span>
-                + Add Building
-            </span>
+            <span>+ Add Building</span>
         </button>
     );
 

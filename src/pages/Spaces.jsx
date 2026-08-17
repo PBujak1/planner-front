@@ -1,4 +1,5 @@
-import {useState} from "react";
+import { useEffect, useState } from "react";
+
 
 import BuildingCard from "../components/BuildingCard";
 import RoomCard from "../components/RoomCard";
@@ -8,89 +9,120 @@ import NewRoomDialog from "../components/NewRoomDialog";
 
 import "../components/styles/buildings/Spaces.css";
 
+import api from "../api/axios";
+import {useAuth} from "@/context/AuthContext.jsx";
 
-export default function Spaces(){
-    const [selectedBuilding,setSelectedBuilding] = useState(null);
+export default function Spaces() {
 
-    const buildings=[
-        {
-            id:1,
-            name:"Building A",
-            description:"Engineering Faculty",
-            roomCount:12,
-            activeRooms:10
-        },
-        {
-            id:2,
-            name:"Building B",
-            description:"Computer Science",
-            roomCount:20,
-            activeRooms:18
-        },
-        {
-            id:3,
-            name:"Building B2",
-            description:"WieIk",
-            roomCount:20,
-            activeRooms:20
+    const [buildings, setBuildings] = useState([]);
+    const [rooms, setRooms] = useState([]);
+    const { logout } = useAuth();
+
+    const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+    const [loadingBuildings, setLoadingBuildings] = useState(true);
+    const [loadingRooms, setLoadingRooms] = useState(false);
+
+    /*
+     * Pobieranie budynków
+     */
+    useEffect(() => {
+        const fetchBuildings = async () => {
+            try {
+                const response = await api.get("/buildings");
+                setBuildings(response.data);
+            } catch (error) {
+                console.error("Error while fetching buildings:", error);
+            } finally {
+                setLoadingBuildings(false);
+            }
+        };
+        fetchBuildings();
+    }, []);
+
+
+    /*
+     * Pobieranie pokoi po wybraniu budynku
+     */
+    useEffect(() => {
+        if (!selectedBuilding) {
+            setRooms([]);
+            return;
         }
-    ];
+        const fetchRooms = async () => {
+            setLoadingRooms(true);
+            try {
+                const response = await api.get(
+                    `/rooms/building/${selectedBuilding.id}`
+                );
+                setRooms(response.data);
+            } catch (error) {
+                console.error("Error while fetching rooms:", error);
+            } finally {
+                setLoadingRooms(false);
+            }
+        };
+        fetchRooms();
+    }, [selectedBuilding]);
 
-    const rooms=[
-        {
-            id:1,
-            roomNumber:"A101",
-            building:"Building A",
-            capacity:30,
-            active:true
-        },
-        {
-            id:2,
-            roomNumber:"A102",
-            building:"Building A",
-            capacity:20,
-            active:true
-        }
-    ];
 
+    /*
+     * Wyświetlanie budynków
+     */
+    if (!selectedBuilding) {
+        return (
+            <div className="spaces-container">
+                <div className="spaces-header">
+                    <div>
+                        <h1>Buildings</h1>
+                        <p>
+                            Manage university buildings
+                        </p>
+                    </div>
+                    <div className="spaces-actions">
+                        <NewBuildingDialog/>
+
+                        <button
+                            className="logout-button"
+                            onClick={logout}
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+                {loadingBuildings ? (
+                    <p>Loading buildings...</p>
+                ) : buildings.length === 0 ? (
+                    <p>No buildings found.</p>
+                ) : (
+                    <div className="building-grid">
+                        {buildings.map(building => (
+                            <BuildingCard
+                                key={building.id}
+                                building={building}
+                                onOpen={setSelectedBuilding}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
     return (
         <div className="spaces-container">
-            {!selectedBuilding ? (
-                <>
-                    <div className="spaces-header">
-                        <div>
-                            <h1>Buildings</h1>
-                            <p>
-                                Manage university buildings
-                            </p>
-                        </div>
-                        <NewBuildingDialog/>
-                    </div>
-                    <div className="building-grid"> {
-                            buildings.map(building=>(
-                                <BuildingCard
-                                    key={building.id}
-                                    building={building}
-                                    onOpen={setSelectedBuilding}
-                                />
-                            ))}
-                    </div>
-                </>
-            ):(
-                <>
-                    <div className="spaces-header">
-                        <div>
-                            <button
-                                className="back-button"
-                                onClick={() => setSelectedBuilding(null)}
+            <div className="spaces-header">
+                <div>
+                    <button
+                        className="back-button"
+                        onClick={() => setSelectedBuilding(null)}
+                    >
+                        <div className="back-button-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 1024 1024"
+                                width="25"
+                                height="25"
                             >
-                            <div className="back-button-icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 1024 1024"
-                                    width="25"
-                                    height="25"
-                                >
                                 <path
                                     d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
                                     fill="#000"
@@ -101,25 +133,34 @@ export default function Spaces(){
                                 />
                             </svg>
                         </div>
-                        <span className="back-button-text">Back</span>
+                        <span className="back-button-text">
+                            Back
+                        </span>
                     </button>
-                            <h1>
-                                {selectedBuilding.name}
-                            </h1>
-                        </div>
-                        <NewRoomDialog/>
-                    </div>
-                    <div className="room-grid"> {
-                            rooms
-                                .filter(r=>r.building===selectedBuilding.name)
-                                .map(room=>(
-                                    <RoomCard
-                                        key={room.id}
-                                        room={room}
-                                    />
-                                ))}
-                    </div>
-                </>
+                    <h1>
+                        {selectedBuilding.name}
+                    </h1>
+                    <p>
+                        {selectedBuilding.description}
+                    </p>
+                </div>
+                <NewRoomDialog buildings={buildings} />
+            </div>
+            {loadingRooms ? (
+                <p>Loading rooms...</p>
+            ) : rooms.length === 0 ? (
+                <p>
+                    No rooms found in this building.
+                </p>
+            ) : (
+                <div className="room-grid">
+                    {rooms.map(room => (
+                        <RoomCard
+                            key={room.id}
+                            room={room}
+                        />
+                    ))}
+                </div>
             )}
         </div>
     );

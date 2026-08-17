@@ -4,7 +4,7 @@
     padding: 25px;
     cursor: pointer;
     transition: 0.2s;
-    border: 1px solid #e5e7eb;
+    border: 3px solid #e5e7eb;
 }
 
 .building-card:hover {
