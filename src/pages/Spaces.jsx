@@ -30,6 +30,39 @@ export default function Spaces() {
         ]);
     };
 
+    const handleBuildingDeleted = async (buildingId) => {
+        if (!window.confirm("Are you sure you want to delete this building?")) {
+            return;
+        }
+        try {
+            await api.delete(`/buildings/${buildingId}`);
+
+            setBuildings(prevBuilds =>
+                prevBuilds.filter((building) => building.id === buildingId)
+            );
+        } catch (error) {
+            console.error("Error while deleting this building", error);
+            alert("Failed to delete this building");
+        }
+    }
+
+    const handleRoomDeleted = async (roomId) => {
+        if (!window.confirm("Are you sure you want to delete this room?")) {
+            return;
+        }
+
+        try {
+            await api.delete(`/rooms/${roomId}`);
+
+            setRooms(prevRooms =>
+                prevRooms.filter((room) => room.id !== roomId)
+            );
+        } catch (error) {
+            console.error("Error while deleting this room", error);
+            alert("Failed to delete this room");
+        }
+    }
+
     /*
      * Pobieranie budynków
      */
@@ -112,6 +145,7 @@ export default function Spaces() {
                                 key={building.id}
                                 building={building}
                                 onOpen={setSelectedBuilding}
+                                onDelete={handleBuildingDeleted}
                             />
                         ))}
                     </div>
@@ -172,6 +206,7 @@ export default function Spaces() {
                         <RoomCard
                             key={room.id}
                             room={room}
+                            onDelete={handleRoomDeleted}
                         />
                     ))}
                 </div>

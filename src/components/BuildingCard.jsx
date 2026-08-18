@@ -1,7 +1,7 @@
 import "./styles/buildings/BuildingCard.css";
 import { Building2 } from "lucide-react";
 
-export default function BuildingCard({ building, onOpen }) {
+export default function BuildingCard({ building, onOpen, onDelete }) {
     return (
         <div
             className="building-card"
@@ -9,7 +9,16 @@ export default function BuildingCard({ building, onOpen }) {
         >
             <Building2 className="building-icon"/>
 
-            <h2>{building.name}</h2>
+            <h2>{building.name}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(building.id);
+                    }}
+                >
+                    🗑️
+                </button>
+            </h2>
 
             <p className="building-description">
                 {building.description}
