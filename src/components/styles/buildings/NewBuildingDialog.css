@@ -1,3 +1,6 @@
+/*
+    Przycisk do dodawania budynków
+*/
 .add-button {
     display: flex;
     align-items: center;
@@ -44,6 +47,9 @@
     transform: translateY(0);
 }
 
+/*
+    Kontener formularza do doania budynku
+*/
 .dialog-overlay {
     position: fixed;
     inset: 0;

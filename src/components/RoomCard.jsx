@@ -1,5 +1,5 @@
 import "./styles/buildings/RoomCard.css";
-import { Users, MapPin } from "lucide-react";
+import { Users, MapPin, Trash2 } from "lucide-react";
 
 export default function RoomCard({ room, onDelete }) {
 
@@ -12,12 +12,13 @@ export default function RoomCard({ room, onDelete }) {
                         {room.roomNumber}
 
                         <button
+                            className="delete-room-button"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(room.id);
+                                onDelete(building.id);
                             }}
                         >
-                            🗑️
+                            <Trash2 size={17} />
                         </button>
                     </h2>
 
@@ -43,7 +44,7 @@ export default function RoomCard({ room, onDelete }) {
                             : "room-status inactive"
                     }
                 >
-                    {room.active ? "Active" : "Inactive"}
+                    {room.active ? "Free" : "Reserved"}
                 </span>
 
             </div>

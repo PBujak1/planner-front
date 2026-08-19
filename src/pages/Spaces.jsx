@@ -38,7 +38,7 @@ export default function Spaces() {
             await api.delete(`/buildings/${buildingId}`);
 
             setBuildings(prevBuilds =>
-                prevBuilds.filter((building) => building.id === buildingId)
+                prevBuilds.filter((building) => building.id !== buildingId)
             );
         } catch (error) {
             console.error("Error while deleting this building", error);

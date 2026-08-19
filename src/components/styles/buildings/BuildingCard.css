@@ -1,3 +1,6 @@
+/*
+    Główny kontener
+*/
 .building-card {
     background: white;
     border-radius: 20px;
@@ -5,6 +8,7 @@
     cursor: pointer;
     transition: 0.2s;
     border: 3px solid #e5e7eb;
+    position: relative;
 }
 
 .building-card:hover {
@@ -20,13 +24,17 @@
     margin-bottom: 20px;
 }
 
-
+/*
+    Nazwa budynku
+*/
 .building-card h2 {
     font-size: 22px;
     margin-bottom: 8px;
 }
 
-
+/*
+    Opis budynku oraz opisanie ilości pomieszczeń wraz z aktywnością
+*/
 .building-description {
     color: #6b7280;
 }
@@ -37,5 +45,45 @@
     justify-content:space-between;
     margin-top:25px;
     color:#6b7280;
-    font-size:14px;
+    font-size:15px;
+}
+
+/*
+    Przycisk do usuwania budynków
+*/
+.delete-building-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 35px;
+    height: 35px;
+
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+
+    background: #ffc9c9;
+    color: #da5656;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease;
+}
+
+.delete-building-button:hover {
+    background-color: #ffa6a6;
+    color: #dc2626;
+    transform: scale(1.08);
+}
+
+.delete-building-button:active {
+    transform: scale(0.95);
 }
