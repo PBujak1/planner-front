@@ -7,7 +7,7 @@ import RoomCard from "../components/RoomCard";
 import NewBuildingDialog from "../components/NewBuildingDialog";
 import NewRoomDialog from "../components/NewRoomDialog";
 
-import "../components/styles/buildings/Spaces.css";
+import "./styles/Spaces.css";
 
 import api from "../api/axios";
 import {useAuth} from "@/context/AuthContext.jsx";

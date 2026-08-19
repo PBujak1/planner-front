@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./styles/buildings/NewRoomDialog.css";
+import "./styles/rooms/NewRoomDialog.css";
 import api from "../api/axios"
 
 export default function NewRoomDialog({buildingId, onRoomCreated}) {

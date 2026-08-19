@@ -1,0 +1,309 @@
+.room-details {
+    min-height: 100vh;
+    padding: 32px;
+    background: #f5f7fb;
+}
+
+
+/* HEADER */
+
+.room-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 28px;
+    padding: 24px 28px;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+
+.room-details-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+
+.room-details-title h1 {
+    margin: 0;
+
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+
+.room-details-title p {
+    margin: 5px 0 0;
+
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* BACK BUTTON */
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 10px;
+
+    background: #f3f4f6;
+    color: #374151;
+
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+
+.back-button:hover {
+    background: #e5e7eb;
+    transform: translateX(-2px);
+}
+
+
+/* ROOM INFO */
+
+.room-details-info {
+    display: flex;
+    gap: 32px;
+}
+
+
+.room-details-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+.room-details-info span {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+
+.room-details-info strong {
+    font-size: 14px;
+    color: #374151;
+}
+
+
+/* EDITOR */
+
+.room-editor {
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+
+.room-editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 20px 24px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.room-editor-toolbar h2 {
+    margin: 0;
+
+    font-size: 20px;
+    color: #111827;
+}
+
+
+.room-editor-toolbar p {
+    margin: 4px 0 0;
+
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+
+/* CANVAS */
+
+.room-canvas-container {
+    padding: 32px;
+
+    overflow: auto;
+
+    background: #f8fafc;
+}
+
+
+.room-canvas {
+    position: relative;
+
+    width: 1000px;
+    height: 650px;
+
+    margin: 0 auto;
+
+    background-color: white;
+
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+
+    /*
+     * Delikatna siatka pomagająca
+     * w późniejszym edytowaniu elementów.
+     */
+    background-image:
+            linear-gradient(#e5e7eb 1px, transparent 1px),
+            linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+
+    background-size: 25px 25px;
+
+    box-shadow:
+            0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ELEMENT */
+
+.room-element {
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    border: 1px solid #9ca3af;
+    border-radius: 6px;
+
+    background: #e5e7eb;
+
+    color: #374151;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    user-select: none;
+}
+
+
+/* DIFFERENT ELEMENT TYPES */
+
+.room-element-desk {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+
+.room-element-chair {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    border-radius: 50%;
+}
+
+
+.room-element-table {
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
+
+
+.room-element-whiteboard,
+.room-element-blackboard {
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+
+.room-element-door {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+
+.room-element-window {
+    background: #e0f2fe;
+    border-color: #7dd3fc;
+}
+
+
+.room-element-projector {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+}
+
+
+.room-element-sofa {
+    background: #fce7f3;
+    border-color: #f9a8d4;
+}
+
+
+/* LOADING */
+
+.room-details-loading {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    color: #6b7280;
+}
+
+
+.loading-icon {
+    animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ERROR */
+
+.room-details-error {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+}
+
+
+.room-details-error p {
+    color: #dc2626;
+}

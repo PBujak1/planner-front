@@ -1,11 +1,11 @@
-import "./styles/buildings/RoomCard.css";
+import "./styles/rooms/RoomCard.css";
 import { Users, MapPin, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function RoomCard({ room, onDelete }) {
 
     return (
         <div className="room-card">
-
             <div className="room-header">
                 <div>
                     <h2>
@@ -15,7 +15,7 @@ export default function RoomCard({ room, onDelete }) {
                             className="delete-room-button"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(building.id);
+                                onDelete(room.id);
                             }}
                         >
                             <Trash2 size={17} />
@@ -30,7 +30,7 @@ export default function RoomCard({ room, onDelete }) {
                 <MapPin className="room-icon"/>
             </div>
 
-            <div className="room-details">
+            <div className="room-card-details">
 
                 <div>
                     <Users size={18}/>
@@ -49,9 +49,12 @@ export default function RoomCard({ room, onDelete }) {
 
             </div>
 
-            <button className="details-button">
+            <Link
+                to={`/rooms/${room.id}`}
+                className="details-button"
+            >
                 Details
-            </button>
+            </Link>
 
         </div>
     );
