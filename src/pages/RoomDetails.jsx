@@ -51,9 +51,9 @@ export default function RoomDetails() {
             <div className="room-details-error">
                 <p>{error}</p>
 
-                <Link to="/rooms" className="back-button">
+                <Link to="/rooms" className="back-button-details">
                     <ArrowLeft size={18}/>
-                    Powrót do pokoi
+                    <span>Back</span>
                 </Link>
             </div>
         );
@@ -69,8 +69,9 @@ export default function RoomDetails() {
             <header className="room-details-header">
 
                 <div className="room-details-title">
-                    <Link to="/rooms" className="back-button">
+                    <Link to="/rooms" className="back-button-details">
                         <ArrowLeft size={18}/>
+                        <span>Back</span>
                     </Link>
 
                     <div>
