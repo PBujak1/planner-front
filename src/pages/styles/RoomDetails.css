@@ -212,19 +212,34 @@
 
     box-sizing: border-box;
 
-    border: 1px solid #9ca3af;
-    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
 
-    background: #e5e7eb;
+    background: #ffffff;
 
-    color: #374151;
-
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 500;
 
     user-select: none;
+
+    cursor: grab;
+
+    transition:
+            box-shadow 0.15s ease,
+            border-color 0.15s ease;
 }
 
+.room-element:active {
+    cursor: grabbing;
+}
+
+.room-element-selected {
+    border: 2px solid #2563eb;
+
+    box-shadow:
+            0 0 0 3px rgba(37, 99, 235, 0.12);
+    z-index: 10;
+}
 
 /* DIFFERENT ELEMENT TYPES */
 
