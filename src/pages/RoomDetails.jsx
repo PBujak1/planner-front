@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Eye, Save, X } from "lucide-react";
+import { ArrowLeft, Loader2, Eye, Save, X , Table2, Armchair, DoorOpen, Trash2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import api from "../api/axios";
@@ -593,18 +593,6 @@ export default function RoomDetails() {
                             {selectedElementIds.size > 1 && ` • ${selectedElementIds.size} zaznaczonych`}
                         </p>
                     </div>
-
-                    <div className="room-editor-actions">
-                        <button onClick={() => handleAddElement("TABLE")}>+ Table</button>
-                        <button onClick={() => handleAddElement("CHAIR")}>+ Chair</button>
-                        <button onClick={() => handleAddElement("DOOR")}>+ Door</button>
-
-                        {selectedElementIds.size > 0 && (
-                            <button className="delete-element-button" onClick={handleDeleteElement}>
-                                Delete{selectedElementIds.size > 1 ? ` (${selectedElementIds.size})` : ""}
-                            </button>
-                        )}
-                    </div>
                 </div>
 
                 <div className="element-properties">
@@ -724,7 +712,31 @@ export default function RoomDetails() {
                 )}
 
 
-                <div className="room-canvas-container">
+                <div className="room-editor-layout">
+                    <div className="room-editor-sidebar">
+                        <div className="room-editor-actions">
+                            <button onClick={() => handleAddElement("TABLE")}>
+                                <Table2 size={18} />
+                                <span>ADD CHAIR</span>
+                            </button>
+                            <button onClick={() => handleAddElement("CHAIR")}>
+                                <Armchair size={18} />
+                                <span>ADD TABLE</span>
+                            </button>
+                            <button onClick={() => handleAddElement("DOOR")}>
+                                <DoorOpen size={18} />
+                                <span>ADD DOOR</span>
+                            </button>
+                            {selectedElementIds.size > 0 && (
+                                <button className="delete-element-button" onClick={handleDeleteElement}>
+                                    <Trash2 size={18} />
+                                    <span>DELETE{selectedElementIds.size > 1 ? ` (${selectedElementIds.size})` : ""}</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+
                     <div
                         className={`room-canvas ${previewMode ? "room-canvas-preview" : ""}`}
                         style={{
