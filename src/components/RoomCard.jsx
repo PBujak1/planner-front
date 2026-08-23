@@ -2,7 +2,7 @@ import "./styles/rooms/RoomCard.css";
 import { Users, MapPin, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function RoomCard({ room, onDelete }) {
+export default function RoomCard({ room, onDelete , from, building  }) {
 
     return (
         <div className="room-card">
@@ -51,6 +51,7 @@ export default function RoomCard({ room, onDelete }) {
 
             <Link
                 to={`/rooms/${room.id}`}
+                state={{ from: from, building: building }}
                 className="details-button"
             >
                 Details

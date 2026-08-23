@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import BuildingCard from "../components/BuildingCard";
 import RoomCard from "../components/RoomCard";
 
+import { useLocation } from "react-router-dom";
 import NewBuildingDialog from "../components/NewBuildingDialog";
 import NewRoomDialog from "../components/NewRoomDialog";
 
@@ -17,6 +18,7 @@ export default function Spaces() {
     const [buildings, setBuildings] = useState([]);
     const [rooms, setRooms] = useState([]);
     const { logout } = useAuth();
+    const location = useLocation();
 
     const [selectedBuilding, setSelectedBuilding] = useState(null);
 
@@ -207,6 +209,8 @@ export default function Spaces() {
                             key={room.id}
                             room={room}
                             onDelete={handleRoomDeleted}
+                            from={location.pathname}
+                            building={selectedBuilding}
                         />
                     ))}
                 </div>
