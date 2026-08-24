@@ -1,73 +1,114 @@
 .spaces-container {
-    padding:40px;
+    padding: 32px 40px;
+    background: #f5f5f5;
+    min-height: 100vh;
 }
 
 .spaces-header {
-    display:flex;
-    justify-content:space-between;
-    align-items:end;
-    margin-bottom:40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
 }
 
 .spaces-header h1 {
-    font-size:38px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
 }
 
 .spaces-header p {
-    color:#6b7280;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.spaces-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .building-grid,
 .room-grid {
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(280px,1fr));
-    gap:25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/*
+    Przycisk główny (np. "+ Add Building") — dodaj tę klasę
+    do przycisku w NewBuildingDialog / NewRoomDialog
+*/
+.primary-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: 40px;
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #635bff;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background-color 0.15s ease;
+}
+
+.primary-button:hover {
+    background: #5147e6;
+}
+
+.primary-button:active {
+    background: #4038c9;
+}
+
+.primary-button svg {
+    width: 16px;
+    height: 16px;
 }
 
 .back-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
+    gap: 8px;
 
-    height: 48px;
-    padding: 0 42px;
+    height: 34px;
+    padding: 0 16px;
+    margin-bottom: 10px;
 
-    border: 2px solid #d1d5db;
-    border-radius: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 999px;
 
     background: #ffffff;
     color: #374151;
 
     font-family: inherit;
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 600;
 
     cursor: pointer;
 
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-
-    transition:
-            background-color 0.2s ease,
-            border-color 0.2s ease,
-            color 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .back-button:hover {
-    background: #374151;
-    border-color: #374151;
-    color: white;
-
-    transform: translateY(-3px);
-
-    box-shadow: 0 10px 25px rgba(55, 65, 81, 0.25);
+    background: #f5f5f5;
+    border-color: #d1d1d1;
 }
 
 .back-button:active {
-    transform: translateY(0);
+    background: #ebebeb;
 }
 
 .back-button-icon {
@@ -77,8 +118,8 @@
 }
 
 .back-button-icon svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
 }
 
 .back-button-icon svg path {
@@ -93,44 +134,180 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
+    gap: 8px;
 
-    height: 48px;
-    padding: 0 32px;
+    height: 40px;
+    padding: 0 24px;
 
-    border: 2px solid #fca5a5;
-    border-radius: 14px;
+    border: none;
+    border-radius: 999px;
 
-    background: #ffffff;
-    color: #dc2626;
+    background: #ffdde1;
+    color: #c4314b;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 
     cursor: pointer;
 
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-
-    transition:
-            background-color 0.2s ease,
-            border-color 0.2s ease,
-            color 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 
     z-index: 1000;
 }
 
 .logout-button:hover {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: white;
-
-    transform: translateY(-3px);
-
-    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.25);
+    background: #ffc6cc;
+    color: #a4262c;
 }
 
 .logout-button:active {
-    transform: translateY(0);
+    background: #ffb3ba;
+}
+
+/*
+    Layout: sidebar + główna treść
+*/
+.spaces-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+/*
+    Panel boczny
+*/
+.spaces-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #faf9f8;
+    border-right: 1px solid #e1e1e1;
+    padding: 16px 12px;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 8px 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #e1e1e1;
+
+    color: #242424;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    width: 100%;
+    padding: 8px 8px;
+
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+
+    color: #424242;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-nav-item:hover {
+    background: #ebebeb;
+}
+
+.sidebar-nav-item-active {
+    background: #e0e0f8;
+    color: #4f52b2;
+    font-weight: 600;
+}
+
+.sidebar-nav-chevron {
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-nav-chevron-collapsed {
+    transform: rotate(-90deg);
+}
+
+.sidebar-nav-badge {
+    margin-left: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+
+    border-radius: 999px;
+    background: #635bff;
+    color: #ffffff;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sidebar-nav-sublist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 4px;
+}
+
+.sidebar-nav-subitem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    width: 100%;
+    padding: 7px 8px 7px 30px;
+
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+
+    color: #616161;
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-nav-subitem:hover {
+    background: #ebebeb;
+}
+
+.sidebar-nav-subitem-active {
+    background: #e0e0f8;
+    color: #4f52b2;
+    font-weight: 600;
+}
+
+/*
+    Górny pasek z wyszukiwarką
+*/
+.spaces-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }

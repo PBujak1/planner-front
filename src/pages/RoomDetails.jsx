@@ -14,6 +14,7 @@ export default function RoomDetails() {
 
     const [room, setRoom] = useState(null);
     const [layout, setLayout] = useState(null);
+    const [savedLayout, setSavedLayout] = useState(null); // ostatni zapisany stan z serwera
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const location = useLocation();
@@ -28,6 +29,22 @@ export default function RoomDetails() {
     const [previewMode, setPreviewMode] = useState(false);
     const [saving, setSaving] = useState(false);
 
+    // --- czy elementy (pozycja/rozmiar/label/rotacja) mają niezapisane zmiany ---
+    const [elementsDirty, setElementsDirty] = useState(false);
+
+    const isColliding = (elementA, elementB) => (
+        elementA.x < elementB.x + elementB.width &&
+        elementA.x + elementA.width > elementB.x &&
+        elementA.y < elementB.y + elementB.height &&
+        elementA.y + elementA.height > elementB.y
+    );
+
+    const hasCollision = (candidateElement, elementsList, ignoreIds) => {
+        return elementsList.some(
+            (el) => !ignoreIds.has(el.id) && isColliding(candidateElement, el)
+        );
+    };
+
     useEffect(() => {
         const loadRoom = async () => {
             try {
@@ -41,6 +58,7 @@ export default function RoomDetails() {
 
                 setRoom(roomResponse.data);
                 setLayout(layoutResponse.data);
+                setSavedLayout(layoutResponse.data);
                 setCanvasDraft({
                     width: layoutResponse.data.width,
                     height: layoutResponse.data.height
@@ -61,6 +79,9 @@ export default function RoomDetails() {
     const isCanvasDirty =
         layout != null &&
         (canvasDraft.width !== layout.width || canvasDraft.height !== layout.height);
+
+    // --- łączna flaga: canvas LUB elementy mają niezapisane zmiany ---
+    const isDirty = isCanvasDirty || elementsDirty;
 
     // --- przesuwanie (pojedynczego elementu lub całej grupy) ---
     const handleElementMouseDown = (event, element) => {
@@ -104,7 +125,7 @@ export default function RoomDetails() {
             }
         });
 
-        let finalPositions = new Map(startPositions);
+        let didMove = false;
 
         const handleMouseMove = (moveEvent) => {
             let deltaX = moveEvent.clientX - startMouseX;
@@ -118,40 +139,87 @@ export default function RoomDetails() {
             let minDeltaY = -Infinity;
             let maxDeltaY = Infinity;
 
-            startPositions.forEach((pos) => {
-                minDeltaX = Math.max(minDeltaX, -pos.x);
-                maxDeltaX = Math.min(maxDeltaX, maxWidth - pos.width - pos.x);
-                minDeltaY = Math.max(minDeltaY, -pos.y);
-                maxDeltaY = Math.min(maxDeltaY, maxHeight - pos.height - pos.y);
+            const startPositions = new Map();
+            layout.elements.forEach((el) => {
+                if (idsToMove.has(el.id)) {
+                    startPositions.set(el.id, { x: el.x, y: el.y, width: el.width, height: el.height });
+                }
             });
 
-            deltaX = Math.max(minDeltaX, Math.min(deltaX, maxDeltaX));
-            deltaY = Math.max(minDeltaY, Math.min(deltaY, maxDeltaY));
+            // elementy statyczne, względem których sprawdzamy kolizję
+            const staticElements = layout.elements.filter((el) => !idsToMove.has(el.id));
 
-            const nextPositions = new Map();
-            startPositions.forEach((pos, elId) => {
-                nextPositions.set(elId, { ...pos, x: pos.x + deltaX, y: pos.y + deltaY });
-            });
+            let lastValidPositions = new Map(startPositions);
+            let didMove = false;
 
-            finalPositions = nextPositions;
+            const handleMouseMove = (moveEvent) => {
+                let deltaX = moveEvent.clientX - startMouseX;
+                let deltaY = moveEvent.clientY - startMouseY;
 
-            setLayout((currentLayout) => ({
-                ...currentLayout,
-                elements: currentLayout.elements.map((el) =>
-                    nextPositions.has(el.id)
-                        ? { ...el, x: nextPositions.get(el.id).x, y: nextPositions.get(el.id).y }
-                        : el
-                )
-            }));
+                if (Number.isNaN(deltaX)) deltaX = 0;
+                if (Number.isNaN(deltaY)) deltaY = 0;
+
+                let minDeltaX = -Infinity, maxDeltaX = Infinity;
+                let minDeltaY = -Infinity, maxDeltaY = Infinity;
+
+                startPositions.forEach((pos) => {
+                    minDeltaX = Math.max(minDeltaX, -pos.x);
+                    maxDeltaX = Math.min(maxDeltaX, maxWidth - pos.width - pos.x);
+                    minDeltaY = Math.max(minDeltaY, -pos.y);
+                    maxDeltaY = Math.min(maxDeltaY, maxHeight - pos.height - pos.y);
+                });
+
+                deltaX = Math.max(minDeltaX, Math.min(deltaX, maxDeltaX));
+                deltaY = Math.max(minDeltaY, Math.min(deltaY, maxDeltaY));
+
+                const candidatePositions = new Map();
+                startPositions.forEach((pos, elId) => {
+                    candidatePositions.set(elId, { ...pos, x: pos.x + deltaX, y: pos.y + deltaY });
+                });
+
+                // sprawdź, czy KAŻDY przesuwany element mieści się bez kolizji ze statycznymi
+                const wouldCollide = Array.from(candidatePositions.entries()).some(
+                    ([elId, pos]) => hasCollision({ id: elId, ...pos }, staticElements, new Set([elId]))
+                );
+
+                if (wouldCollide) {
+                    // nie aktualizujemy pozycji — element "zatrzymuje się" na kolizji
+                    return;
+                }
+
+                lastValidPositions = candidatePositions;
+                if (deltaX !== 0 || deltaY !== 0) didMove = true;
+
+                setLayout((currentLayout) => ({
+                    ...currentLayout,
+                    elements: currentLayout.elements.map((el) =>
+                        lastValidPositions.has(el.id)
+                            ? { ...el, x: lastValidPositions.get(el.id).x, y: lastValidPositions.get(el.id).y }
+                            : el
+                    )
+                }));
+            };
+
+            const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+                if (didMove) setElementsDirty(true);
+            };
+
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
         };
+
 
         const handleMouseUp = () => {
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
 
-            finalPositions.forEach((pos, elId) => {
-                api.patch(`/rooms/${id}/layout/elements/${elId}`, { x: pos.x, y: pos.y });
-            });
+            // Nie wysyłamy już PATCH per element — tylko oznaczamy jako "do zapisania".
+            // Faktyczny zapis nastąpi zbiorczo przez przycisk "Save changes".
+            if (didMove) {
+                setElementsDirty(true);
+            }
         };
 
         document.addEventListener("mousemove", handleMouseMove);
@@ -237,6 +305,14 @@ export default function RoomDetails() {
                 ]
             }));
 
+            setSavedLayout((currentSaved) => ({
+                ...currentSaved,
+                elements: [
+                    ...currentSaved.elements,
+                    response.data
+                ]
+            }));
+
             setSelectedElementIds(new Set([response.data.id]));
 
         } catch (error) {
@@ -265,6 +341,13 @@ export default function RoomDetails() {
                 )
             }));
 
+            setSavedLayout((currentSaved) => ({
+                ...currentSaved,
+                elements: currentSaved.elements.filter(
+                    (element) => !selectedElementIds.has(element.id)
+                )
+            }));
+
             setSelectedElementIds(new Set());
 
         } catch (error) {
@@ -277,33 +360,25 @@ export default function RoomDetails() {
             ? layout?.elements.find((element) => selectedElementIds.has(element.id))
             : null;
 
-    const handleElementChange = async (property, value) => {
+    // --- zmiana property elementu: TYLKO lokalnie, bez requestu ---
+    const handleElementChange = (property, value) => {
         if (!singleSelectedElement) {
             return;
         }
 
         const elementId = singleSelectedElement.id;
 
-        const updatedElement = {
-            ...singleSelectedElement,
-            [property]: value
-        };
-
         setLayout((currentLayout) => ({
             ...currentLayout,
             elements: currentLayout.elements.map(
                 (currentElement) =>
                     currentElement.id === elementId
-                        ? updatedElement
+                        ? { ...currentElement, [property]: value }
                         : currentElement
             )
         }));
 
-        try {
-            await api.patch(`/rooms/${id}/layout/elements/${elementId}`, { [property]: value });
-        } catch (error) {
-            console.error("Error updating element:", error);
-        }
+        setElementsDirty(true);
     };
 
     // --- rozmiar canvasu: TYLKO zmiana draftu, żadnego requestu ---
@@ -323,14 +398,20 @@ export default function RoomDetails() {
         setPreviewMode((current) => !current);
     };
 
-    const handleDiscardCanvasChanges = () => {
-        setCanvasDraft({ width: layout.width, height: layout.height });
+    // --- odrzuca WSZYSTKIE niezapisane zmiany: rozmiar canvasu + pozycje/rozmiary/etykiety elementów ---
+    const handleDiscardChanges = () => {
+        if (!savedLayout) return;
+
+        setLayout(JSON.parse(JSON.stringify(savedLayout)));
+        setCanvasDraft({ width: savedLayout.width, height: savedLayout.height });
+        setElementsDirty(false);
         setPreviewMode(false);
+        setSelectedElementIds(new Set());
     };
 
     // --- jeden zbiorczy zapis: rozmiar canvasu + pełna lista elementów ---
     const handleSaveChanges = async () => {
-        if (!isCanvasDirty || saving) {
+        if (!isDirty || saving) {
             return;
         }
 
@@ -341,6 +422,7 @@ export default function RoomDetails() {
                 width: canvasDraft.width,
                 height: canvasDraft.height,
                 elements: layout.elements.map((element) => ({
+                    id: element.id,
                     type: element.type,
                     label: element.label,
                     x: element.x,
@@ -353,10 +435,12 @@ export default function RoomDetails() {
             });
 
             setLayout(response.data);
+            setSavedLayout(response.data);
             setCanvasDraft({ width: response.data.width, height: response.data.height });
+            setElementsDirty(false);
             setPreviewMode(false);
         } catch (error) {
-            console.error("Error saving layout size:", error);
+            console.error("Error saving layout:", error);
         } finally {
             setSaving(false);
         }
@@ -378,10 +462,7 @@ export default function RoomDetails() {
         const minWidth = 30;
         const minHeight = 30;
 
-        let finalX = startX;
-        let finalY = startY;
-        let finalWidth = startWidth;
-        let finalHeight = startHeight;
+        let didResize = false;
 
         const handleMouseMove = (moveEvent) => {
             const deltaX = moveEvent.clientX - startMouseX;
@@ -449,10 +530,14 @@ export default function RoomDetails() {
                     startHeight + (startY - newY);
             }
 
-            finalX = newX;
-            finalY = newY;
-            finalWidth = newWidth;
-            finalHeight = newHeight;
+            if (
+                newX !== startX ||
+                newY !== startY ||
+                newWidth !== startWidth ||
+                newHeight !== startHeight
+            ) {
+                didResize = true;
+            }
 
             setLayout((currentLayout) => ({
                 ...currentLayout,
@@ -460,54 +545,28 @@ export default function RoomDetails() {
                     el.id === element.id
                         ? {
                             ...el,
-                            x: finalX,
-                            y: finalY,
-                            width: finalWidth,
-                            height: finalHeight
+                            x: newX,
+                            y: newY,
+                            width: newWidth,
+                            height: newHeight
                         }
                         : el
                 )
             }));
         };
 
-        const handleMouseUp = async () => {
-            document.removeEventListener(
-                "mousemove",
-                handleMouseMove
-            );
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
 
-            document.removeEventListener(
-                "mouseup",
-                handleMouseUp
-            );
-
-            try {
-                await api.patch(
-                    `/rooms/${id}/layout/elements/${element.id}`,
-                    {
-                        x: finalX,
-                        y: finalY,
-                        width: finalWidth,
-                        height: finalHeight
-                    }
-                );
-            } catch (error) {
-                console.error(
-                    "Error resizing element:",
-                    error
-                );
+            // Bez PATCH — resize też trafia do zbiorczego "Save changes".
+            if (didResize) {
+                setElementsDirty(true);
             }
         };
 
-        document.addEventListener(
-            "mousemove",
-            handleMouseMove
-        );
-
-        document.addEventListener(
-            "mouseup",
-            handleMouseUp
-        );
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
     };
 
     if (loading) {
@@ -644,6 +703,7 @@ export default function RoomDetails() {
                         <label className="canvas-size-controls-label">
                             Layout width
                             <input className="canvas-size-input"
+                                   placeholder="800"
                                    type="number"
                                    min={MIN_LAYOUT_WIDTH}
                                    value={canvasDraft.width}
@@ -655,6 +715,7 @@ export default function RoomDetails() {
                             Layout height
                             <input className="canvas-size-input"
                                    type="number"
+                                   placeholder="600"
                                    min={MIN_LAYOUT_HEIGHT}
                                    value={canvasDraft.height}
                                    onChange={(event) => handleCanvasDraftChange("height", event.target.value)}
@@ -665,7 +726,7 @@ export default function RoomDetails() {
                             type="button"
                             className="preview-toggle-button"
                             onClick={handleTogglePreview}
-                            disabled={!isCanvasDirty && !previewMode}
+                            disabled={!isDirty && !previewMode}
                         >
                             <Eye size={16} />
                             {previewMode ? "Exit preview" : "Preview"}
@@ -675,17 +736,17 @@ export default function RoomDetails() {
                             type="button"
                             className="save-changes-button"
                             onClick={handleSaveChanges}
-                            disabled={!isCanvasDirty || saving}
+                            disabled={!isDirty || saving}
                         >
                             <Save size={16} />
                             {saving ? "Saving..." : "Save changes"}
                         </button>
 
-                        {isCanvasDirty && (
+                        {isDirty && (
                             <button
                                 type="button"
                                 className="discard-changes-button"
-                                onClick={handleDiscardCanvasChanges}
+                                onClick={handleDiscardChanges}
                             >
                                 <X size={16} />
                                 Discard
@@ -704,7 +765,7 @@ export default function RoomDetails() {
                             <button type="button" onClick={handleSaveChanges} disabled={saving}>
                                 {saving ? "Saving..." : "Save changes"}
                             </button>
-                            <button type="button" onClick={handleDiscardCanvasChanges}>
+                            <button type="button" onClick={handleDiscardChanges}>
                                 Discard
                             </button>
                         </div>
@@ -717,15 +778,19 @@ export default function RoomDetails() {
                         <div className="room-editor-actions">
                             <button onClick={() => handleAddElement("TABLE")}>
                                 <Table2 size={18} />
-                                <span>ADD CHAIR</span>
+                                <span>ADD TABLE</span>
                             </button>
                             <button onClick={() => handleAddElement("CHAIR")}>
                                 <Armchair size={18} />
-                                <span>ADD TABLE</span>
+                                <span>ADD CHAIR</span>
                             </button>
                             <button onClick={() => handleAddElement("DOOR")}>
                                 <DoorOpen size={18} />
                                 <span>ADD DOOR</span>
+                            </button>
+                            <button onClick={() => handleAddElement("WALL")}>
+                                <DoorOpen size={18} />
+                                <span>ADD WALL</span>
                             </button>
                             {selectedElementIds.size > 0 && (
                                 <button className="delete-element-button" onClick={handleDeleteElement}>

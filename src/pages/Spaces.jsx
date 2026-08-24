@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 import BuildingCard from "../components/BuildingCard";
 import RoomCard from "../components/RoomCard";
 
@@ -11,7 +10,14 @@ import NewRoomDialog from "../components/NewRoomDialog";
 import "./styles/Spaces.css";
 
 import api from "../api/axios";
-import {useAuth} from "@/context/AuthContext.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
+import {
+    Building2,
+    DoorOpen,
+    CalendarCheck,
+    Search,
+    ChevronDown,
+} from "lucide-react";
 
 export default function Spaces() {
 
@@ -24,6 +30,9 @@ export default function Spaces() {
 
     const [loadingBuildings, setLoadingBuildings] = useState(true);
     const [loadingRooms, setLoadingRooms] = useState(false);
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [buildingsExpanded, setBuildingsExpanded] = useState(true);
 
     const handleRoomCreated = (newRoom) => {
         setRooms(prevRooms => [
@@ -42,6 +51,10 @@ export default function Spaces() {
             setBuildings(prevBuilds =>
                 prevBuilds.filter((building) => building.id !== buildingId)
             );
+
+            if (selectedBuilding?.id === buildingId) {
+                setSelectedBuilding(null);
+            }
         } catch (error) {
             console.error("Error while deleting this building", error);
             alert("Failed to delete this building");
@@ -107,114 +120,157 @@ export default function Spaces() {
         fetchRooms();
     }, [selectedBuilding]);
 
+    const filteredBuildings = buildings.filter((building) =>
+        building.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    /*
-     * Wyświetlanie budynków
-     */
-    if (!selectedBuilding) {
-        return (
-            <div className="spaces-container">
-                <div className="spaces-header">
-                    <div>
-                        <h1>Buildings</h1>
-                        <p>
-                            Manage university buildings
-                        </p>
-                    </div>
-                    <div className="spaces-actions">
-                        <NewBuildingDialog
-                            onBuildingCreated={(newBuilding) => {
-                                setBuildings((prev) => [...prev, newBuilding]);
-                            }}
-                        />
-
-                        <button
-                            className="logout-button"
-                            onClick={logout}
-                        >
-                            Logout
-                        </button>
-                    </div>
-                </div>
-                {loadingBuildings ? (
-                    <p>Loading buildings...</p>
-                ) : buildings.length === 0 ? (
-                    <p>No buildings found.</p>
-                ) : (
-                    <div className="building-grid">
-                        {buildings.map(building => (
-                            <BuildingCard
-                                key={building.id}
-                                building={building}
-                                onOpen={setSelectedBuilding}
-                                onDelete={handleBuildingDeleted}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
-    }
     return (
-        <div className="spaces-container">
-            <div className="spaces-header">
-                <div>
+        <div className="spaces-layout">
+            {/* --- PANEL BOCZNY --- */}
+            <aside className="spaces-sidebar">
+                <div className="sidebar-brand">
+                    <Building2 size={20} />
+                    <span>Buildings</span>
+                </div>
+
+                <nav className="sidebar-nav">
                     <button
-                        className="back-button"
-                        onClick={() => setSelectedBuilding(null)}
+                        className={`sidebar-nav-item ${!selectedBuilding ? "sidebar-nav-item-active" : ""}`}
+                        onClick={() => setBuildingsExpanded((prev) => !prev)}
                     >
-                        <div className="back-button-icon">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 1024 1024"
-                                width="25"
-                                height="25"
-                            >
-                                <path
-                                    d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
-                                    fill="#000"
-                                />
-                                <path
-                                    d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
-                                    fill="#000"
-                                />
-                            </svg>
-                        </div>
-                        <span className="back-button-text">
-                            Back
-                        </span>
-                    </button>
-                    <h1>
-                        {selectedBuilding.name}
-                    </h1>
-                    <p>
-                        {selectedBuilding.description}
-                    </p>
-                </div>
-                <NewRoomDialog
-                    buildingId={selectedBuilding.id}
-                    onRoomCreated={handleRoomCreated}
-                />
-            </div>
-            {loadingRooms ? (
-                <p>Loading rooms...</p>
-            ) : rooms.length === 0 ? (
-                <p>
-                    No rooms found in this building.
-                </p>
-            ) : (
-                <div className="room-grid">
-                    {rooms.map(room => (
-                        <RoomCard
-                            key={room.id}
-                            room={room}
-                            onDelete={handleRoomDeleted}
-                            from={location.pathname}
-                            building={selectedBuilding}
+                        <ChevronDown
+                            size={14}
+                            className={`sidebar-nav-chevron ${buildingsExpanded ? "" : "sidebar-nav-chevron-collapsed"}`}
                         />
-                    ))}
+                        <span>Buildings</span>
+                        <span className="sidebar-nav-badge">{buildings.length}</span>
+                    </button>
+
+                    {buildingsExpanded && (
+                        <div className="sidebar-nav-sublist">
+                            {buildings.map((building) => (
+                                <button
+                                    key={building.id}
+                                    className={`sidebar-nav-subitem ${selectedBuilding?.id === building.id ? "sidebar-nav-subitem-active" : ""}`}
+                                    onClick={() => setSelectedBuilding(building)}
+                                >
+                                    <Building2 size={14} />
+                                    <span>{building.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <button className="sidebar-nav-item">
+                        <DoorOpen size={14} />
+                        <span>Rooms</span>
+                    </button>
+
+                    <button className="sidebar-nav-item">
+                        <CalendarCheck size={14} />
+                        <span>Reservations</span>
+                    </button>
+                </nav>
+            </aside>
+
+            {/* --- GŁÓWNA TREŚĆ --- */}
+            <div className="spaces-main">
+
+                <div className="spaces-container">
+                    {!selectedBuilding ? (
+                        <>
+                            <div className="spaces-header">
+                                <div>
+                                    <h1>Buildings</h1>
+                                    <p>Manage university buildings</p>
+                                </div>
+                                <div className="spaces-actions">
+                                    <NewBuildingDialog
+                                        onBuildingCreated={(newBuilding) => {
+                                            setBuildings((prev) => [...prev, newBuilding]);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {loadingBuildings ? (
+                                <p>Loading buildings...</p>
+                            ) : filteredBuildings.length === 0 ? (
+                                <p>No buildings found.</p>
+                            ) : (
+                                <div className="building-grid">
+                                    {filteredBuildings.map(building => (
+                                        <BuildingCard
+                                            key={building.id}
+                                            building={building}
+                                            onOpen={setSelectedBuilding}
+                                            onDelete={handleBuildingDeleted}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <div className="spaces-header">
+                                <div>
+                                    <button
+                                        className="back-button"
+                                        onClick={() => setSelectedBuilding(null)}
+                                    >
+                                        <div className="back-button-icon">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 1024 1024"
+                                                width="25"
+                                                height="25"
+                                            >
+                                                <path
+                                                    d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
+                                                    fill="#000"
+                                                />
+                                                <path
+                                                    d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
+                                                    fill="#000"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <span className="back-button-text">Back</span>
+                                    </button>
+                                    <h1>{selectedBuilding.name}</h1>
+                                    <p>{selectedBuilding.description}</p>
+                                </div>
+                                <NewRoomDialog
+                                    buildingId={selectedBuilding.id}
+                                    onRoomCreated={handleRoomCreated}
+                                />
+                            </div>
+
+                            {loadingRooms ? (
+                                <p>Loading rooms...</p>
+                            ) : rooms.length === 0 ? (
+                                <p>No rooms found in this building.</p>
+                            ) : (
+                                <div className="room-grid">
+                                    {rooms.map(room => (
+                                        <RoomCard
+                                            key={room.id}
+                                            room={room}
+                                            onDelete={handleRoomDeleted}
+                                            from={location.pathname}
+                                            building={selectedBuilding}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
-            )}
+
+                <button className="logout-button" onClick={logout}>
+                    Logout
+                </button>
+            </div>
         </div>
     );
 }
